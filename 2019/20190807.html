@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.9.0">
+    
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+  <meta name="description" content="介绍几种常见的备份策略, 以及日志、恢复和更新的概念">
+
+
+
+
+  <meta name="keywords" content="数据库,">
+
+
+
+
+
+  <link rel="alternate" href="/default" title="Jiong">
+
+
+
+
+
+
+<link rel="canonical" href="http://yoursite.com/2019/20190807.html">
+
+
+<meta name="description" content="介绍几种常见的备份策略, 以及日志、恢复和更新的概念">
+<meta name="keywords" content="数据库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库备份恢复及更新策略">
+<meta property="og:url" content="http://yoursite.com/2019/20190807.html">
+<meta property="og:site_name" content="Jiong">
+<meta property="og:description" content="介绍几种常见的备份策略, 以及日志、恢复和更新的概念">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://yoursite.com/img/periodical_dumping2.png">
+<meta property="og:image" content="http://yoursite.com/img/incremental_dumping.png">
+<meta property="og:image" content="http://yoursite.com/img/backup_log.png">
+<meta property="og:image" content="http://yoursite.com/img/log.png">
+<meta property="og:image" content="http://yoursite.com/img/t_struct.png">
+<meta property="og:updated_time" content="2019-08-18T13:07:21.589Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据库备份恢复及更新策略">
+<meta name="twitter:description" content="介绍几种常见的备份策略, 以及日志、恢复和更新的概念">
+<meta name="twitter:image" content="http://yoursite.com/img/periodical_dumping2.png">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7747542312dd9ff883cfcc244f3d1384";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+    <title> 数据库备份恢复及更新策略 - Jiong </title>
+  </head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">Jiong</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          数据库备份恢复及更新策略
+        
+      </h1>
+
+      <time class="post-time">
+          8月 07 2019
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h2 id="几种常见的备份策略"><a href="#几种常见的备份策略" class="headerlink" title="几种常见的备份策略"></a>几种常见的备份策略</h2><h3 id="周期性转储-Periodical-dumping"><a href="#周期性转储-Periodical-dumping" class="headerlink" title="周期性转储(Periodical dumping)"></a>周期性转储(Periodical dumping)</h3><p><img src="/img/periodical_dumping2.png" alt="周期性转储"></p>
+<p>每隔一段时间将数据库的内容进行备份, 当数据库在两次备份之间发生故障时，可以将数据库恢复至最近一次备份的状态. 但是最近一次备份到故障点之间的数据全部丢失<code>dumping</code>与<code>failure</code>之间.</p>
+<h3 id="备份与增量转储-Backup-and-Incremental-dumping"><a href="#备份与增量转储-Backup-and-Incremental-dumping" class="headerlink" title="备份与增量转储(Backup and Incremental dumping)"></a>备份与增量转储(Backup and Incremental dumping)</h3><p><img src="/img/incremental_dumping.png" alt="备份与增量转储"></p>
+<p>两次备份之间的间隔时间不能太短, 但可以在备份之间进行增量转储(I.D), 在较短的时间间隔内将数据库变化的部分备份下来. 当故障发生时, 将数据库恢复至最近的一次备份, 再累加上<code>I.D</code>, 这样做仍然存在丢失更新的问题, 比周期性转储要好些. 问题的性质没有变.</p>
+<h3 id="备份与日志-Backup-and-Log"><a href="#备份与日志-Backup-and-Log" class="headerlink" title="备份与日志(Backup and Log)"></a>备份与日志(Backup and Log)</h3><p><img src="/img/backup_log.png" alt="备份与日志"></p>
+<p>从上次备份以来, 将数据库的所有变化以日志的形式记录下来. 日志的内容如下:<br><img src="/img/log.png" alt="日志的内容"></p>
+<p>日志要记录两个部分, 修改(change)的旧值, 简称前项 <code>B.I</code>和新值, 简称后项<code>A.I</code>, <code>A.I</code>与<code>B.I</code>都要记录到日志里. 具体到每一种操作(插删改)该如何记录呢?</p>
+<table>
+<thead>
+<tr>
+<th>op</th>
+<th>B.I</th>
+<th>A.I</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>update</td>
+<td>B.I</td>
+<td>A.I</td>
+</tr>
+<tr>
+<td>insert</td>
+<td>-</td>
+<td>A.I</td>
+</tr>
+<tr>
+<td>delete</td>
+<td>B.I</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p>只有update操作才需要记录两个值.<br>当数据库发生故障时, 将数据库恢复到最近的一次备份, 然后将日志信息进行重新加载. 这种恢复的好处就是不会丢失更新.<br>当数据库进行恢复时, 一些事务可能被中断(half down), 这时就要采用<code>B.I</code>的值进行回滚(undo). 一些事务也可能完成了, 但是结果还没有及时写回到数据库中, 这时就要用日志中的<code>A.I</code>进行重写操作(redo). </p>
+<h2 id="数据库的恢复策略"><a href="#数据库的恢复策略" class="headerlink" title="数据库的恢复策略"></a>数据库的恢复策略</h2><h3 id="事务的概念"><a href="#事务的概念" class="headerlink" title="事务的概念"></a>事务的概念</h3><p>事务(Transaction)<code>T</code>是数据库操作的最基本单位, 是一串操作的集合, 当我们在客户端输入SQL语句时, 会自动将其包装为一个事务. 它具有以下的性质(ACID):</p>
+<ol>
+<li><blockquote>
+<p>原子性(Atomic): 要么成功, 要么失败 Nothing or All</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>一致性(Consistency): 一个事务运行后, 数据库从一个一致性状态到达另一个一致性状态</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>隔离性(Isolation): 并发事务不能相互干扰, 好像它独占整个数据库</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>持久性(Durability): 一个事务成功完成, 它对数据库的影响就应该是永久的, 哪怕出现故障也是可恢复的</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="与恢复有关的数据结构"><a href="#与恢复有关的数据结构" class="headerlink" title="与恢复有关的数据结构"></a>与恢复有关的数据结构</h3><p>日志应该存储在非挥发存储器中(novolatile). 事务运行时, <code>BEGIN TRANSCATION</code>语句运行, 数据库要为每一个事务分配一个标识<code>TID</code>. 数据库还要维护两张表, 提交事务列表(Commit list, C.L)与活动事务列表(Active list, A.L). C.L中维护着已经完成且提交的事务, A.L维护着正在运行的事务. 日志的具体结构如下:</p>
+<p><img src="/img/t_struct.png" alt="日志的具体结构"></p>
+<p>一条日志信息由<code>TID</code>标识, 其中的两个链表, 指向一个含有记录所在物理块地址与<code>A.I</code>或<code>B.I</code>的结构(change)序列. 之所以用链表, 是因为一个事务中可能会修改多个值.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// change可能的结构</span><br><span class="line">struct change &#123;</span><br><span class="line">    block_addr BID;</span><br><span class="line">    value v;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="事务执行时日志遵循的规则"><a href="#事务执行时日志遵循的规则" class="headerlink" title="事务执行时日志遵循的规则"></a>事务执行时日志遵循的规则</h3><ol>
+<li><p>提交规则(Commit Rule)</p>
+<p> 事务提交之前, A.I必须写入到非挥发存储中. 并非一定是数据库, 也可能是Log</p>
+</li>
+<li><p>日志优先规则(Log Ahead Rule)</p>
+<p> 如果A.I在事务提交之前直接写入到数据库中, 那么B.I就必须首先(first)写入到Log中</p>
+</li>
+<li><p>恢复策略(Recover Strategies)</p>
+<p> <code>redu</code>与<code>undo</code>的幂等性<br> 对一个对象的B.I进行多次undo操作等价于作一次undo操作</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">undo(undo(undo...(x))) = undo(x)</span><br></pre></td></tr></table></figure>
+
+<p> 对redo也是同理</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redo(redo(redo...(x))) = redo(x)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h2 id="数据库的更新策略以及故障恢复"><a href="#数据库的更新策略以及故障恢复" class="headerlink" title="数据库的更新策略以及故障恢复"></a>数据库的更新策略以及故障恢复</h2><h3 id="直接修改数据库-A-I-gt-DB-before-commit"><a href="#直接修改数据库-A-I-gt-DB-before-commit" class="headerlink" title="直接修改数据库(A.I-&gt;DB before commit)"></a>直接修改数据库(A.I-&gt;DB before commit)</h3><p>对数据库的修改都要将记录的B.I先写入到Log中, 然后将A.I写入到数据库中. 当事务进入提交阶段, 将事务加入到提交列表中, 同时从活动列表中删除. </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 更新过程的伪代码</span><br><span class="line">TID-&gt;A.L</span><br><span class="line">loop &#123;</span><br><span class="line">    B.I-&gt;Log</span><br><span class="line">    A.I-&gt;DB</span><br><span class="line">&#125; until ( no more options )</span><br><span class="line"></span><br><span class="line">commit (</span><br><span class="line">    TID-&gt;C.L</span><br><span class="line">    delete TID from A.L</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这种更新策略的故障处理, 要根据两张事务表的状态决定. 根据<code>TID</code>去检查两张表, 检查事务的状态.</p>
+<table>
+<thead>
+<tr>
+<th>in C.L?</th>
+<th>in A.L?</th>
+<th>op</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>true</td>
+<td>tue</td>
+<td>delete TID from C.L</td>
+</tr>
+<tr>
+<td>true</td>
+<td>-</td>
+<td>do nothing</td>
+</tr>
+<tr>
+<td>-</td>
+<td>true</td>
+<td>undo &amp; delete TID from A.L</td>
+</tr>
+</tbody></table>
+<p>如表, 当进行恢复时, 如果发现<code>TID</code>在A.L中而不在C.L中, 那么事务没有完全结束, 就要对数据进行回滚.</p>
+<h3 id="事务提交后修改-A-I-gt-DB-after-commit"><a href="#事务提交后修改-A-I-gt-DB-after-commit" class="headerlink" title="事务提交后修改(A.I-&gt;DB after commit)"></a>事务提交后修改(A.I-&gt;DB after commit)</h3><p>对数据库的更新有可能会失败, 这种策略首先将对数据库的更新记录到Log中, 等事务进入到commit阶段后, 再根据Log记录去修改数据库.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">TID-&gt;A.L</span><br><span class="line">loop &#123;</span><br><span class="line">    A.I-&gt;Log</span><br><span class="line">&#125; until ( no more options )</span><br><span class="line"></span><br><span class="line">coomit &#123;</span><br><span class="line">    TID-&gt;C.L</span><br><span class="line">    loop &#123;</span><br><span class="line">        A.I-&gt;DB</span><br><span class="line">    &#125; until ( no more log )</span><br><span class="line">    delete TID from A.L</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>恢复策略与上种方法十分类似</p>
+<table>
+<thead>
+<tr>
+<th>in C.L?</th>
+<th>in A.L?</th>
+<th>op</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>true</td>
+<td>tue</td>
+<td>redo, delete TID from A.L</td>
+</tr>
+<tr>
+<td>true</td>
+<td>-</td>
+<td>do nothing</td>
+</tr>
+<tr>
+<td>-</td>
+<td>true</td>
+<td>delete TID from A.L</td>
+</tr>
+</tbody></table>
+<p>在上表中, 如果一个事务没有完成, 直接将其从C.L删除, 因为数据修改是在事务提交后进行的. 第一种情况下, 数据还没有完全从Log中写入到数据库, 由于redo的幂等性, 将数据全部redo即可, 不用理会故障前在哪个阶段. 这种策略下, 并发事务的效率更高. </p>
+<h3 id="并发提交-A-I-gt-DB-concurrently-with-commit"><a href="#并发提交-A-I-gt-DB-concurrently-with-commit" class="headerlink" title="并发提交(A.I-&gt;DB concurrently with commit)"></a>并发提交(A.I-&gt;DB concurrently with commit)</h3><p>安排一个线程, 在硬盘空闲周期并发地将Log中的B.I写入到数据库中. <code>A.I</code>和<code>B.I</code>要同时写入Log, 因为修改过程涉及两种日志规则.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TID-&gt;A.L</span><br><span class="line">A.I, B.I-&gt;Log</span><br><span class="line">A.I-&gt;DB (concurrently)</span><br><span class="line">...</span><br><span class="line">commit &#123;</span><br><span class="line">    TID-&gt;C.L</span><br><span class="line">    A.I-&gt;DB</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>恢复:</p>
+<table>
+<thead>
+<tr>
+<th>in C.L?</th>
+<th>in A.L?</th>
+<th>op</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>true</td>
+<td>tue</td>
+<td>redo, delete TID from A.L</td>
+</tr>
+<tr>
+<td>true</td>
+<td>-</td>
+<td>do nothing</td>
+</tr>
+<tr>
+<td>-</td>
+<td>true</td>
+<td>undo, delete TID from A.L</td>
+</tr>
+</tbody></table>
+<h3 id="监测点-check-poit"><a href="#监测点-check-poit" class="headerlink" title="监测点(check poit)"></a>监测点(check poit)</h3><p>事务表不可能一直增长下去, 在数据库中, 每隔一段时间就检查一遍Log, 检查修改是否写入到数据库中. 等故障发生后直接从上一个检测点开始恢复.</p>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/数据库/">数据库</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+    2019
+    <span class="footer-author">Wang Jiong.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>
