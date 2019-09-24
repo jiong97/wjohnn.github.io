@@ -30,26 +30,26 @@
 
 
 
-<link rel="canonical" href="http://yoursite.com/2019/20190614.html">
+<link rel="canonical" href="http://wangjiong.me/2019/20190614.html">
 
 
 <meta name="description" content="零拷贝（zero copy）指的是当拷贝发生时，CPU并不参与实际的拷贝过程（也可以指拷贝数据这个过程），CPU可以切换到其他线程，数据的拷贝过程异步进行，异步过程通常要由硬件DMA实现。采用传统的读写操作将磁盘中的数据发送到网络中，通常经历2次用户态/内核态的切换，并且读和写操作CPU分别要参与一次拷贝过程。">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="零拷贝">
-<meta property="og:url" content="http://yoursite.com/2019/20190614.html">
+<meta property="og:url" content="http://wangjiong.me/2019/20190614.html">
 <meta property="og:site_name" content="Jiong">
 <meta property="og:description" content="零拷贝（zero copy）指的是当拷贝发生时，CPU并不参与实际的拷贝过程（也可以指拷贝数据这个过程），CPU可以切换到其他线程，数据的拷贝过程异步进行，异步过程通常要由硬件DMA实现。采用传统的读写操作将磁盘中的数据发送到网络中，通常经历2次用户态/内核态的切换，并且读和写操作CPU分别要参与一次拷贝过程。">
 <meta property="og:locale" content="zh-cn">
-<meta property="og:image" content="http://yoursite.com/img/dma.png">
-<meta property="og:image" content="http://yoursite.com/img/mmap.png">
-<meta property="og:image" content="http://yoursite.com/img/sendfile.png">
-<meta property="og:image" content="http://yoursite.com/img/ibm_sendfile.png">
+<meta property="og:image" content="http://wangjiong.me/img/dma.png">
+<meta property="og:image" content="http://wangjiong.me/img/mmap.png">
+<meta property="og:image" content="http://wangjiong.me/img/sendfile.png">
+<meta property="og:image" content="http://wangjiong.me/img/ibm_sendfile.png">
 <meta property="og:updated_time" content="2019-09-14T18:36:25.586Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="零拷贝">
 <meta name="twitter:description" content="零拷贝（zero copy）指的是当拷贝发生时，CPU并不参与实际的拷贝过程（也可以指拷贝数据这个过程），CPU可以切换到其他线程，数据的拷贝过程异步进行，异步过程通常要由硬件DMA实现。采用传统的读写操作将磁盘中的数据发送到网络中，通常经历2次用户态/内核态的切换，并且读和写操作CPU分别要参与一次拷贝过程。">
-<meta name="twitter:image" content="http://yoursite.com/img/dma.png">
+<meta name="twitter:image" content="http://wangjiong.me/img/dma.png">
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1">
@@ -71,6 +71,16 @@
 
 
   
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7747542312dd9ff883cfcc244f3d1384";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
 
 
 
