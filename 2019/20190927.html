@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.9.0">
+    
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+  <meta name="description" content="Redis持久化">
+
+
+
+
+  <meta name="keywords" content="Redis,">
+
+
+
+
+
+  <link rel="alternate" href="/default" title="Jiong">
+
+
+
+
+
+
+<link rel="canonical" href="http://wangjiong.me/2019/20190927.html">
+
+
+<meta name="description" content="Redis是内存数据库，如果不想办法保存到磁盘里，那么一旦服务退出，保存的数据也会丢失。Redis持久化可分为RDB和AOF。RDB中是一个经压缩的二进制文件，存的是格式化后的数据，AOF保存的是执行的命令。因为AOF文件更新的频率比RDB高，所以只有Redis在AOF持久化功能处于关闭状态时，才会使用RDB模式。 RDBSAVE与BGSAVE都可让Redis生成RDB文件。SAVE会阻塞服务，直">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis持久化">
+<meta property="og:url" content="http://wangjiong.me/2019/20190927.html">
+<meta property="og:site_name" content="Jiong">
+<meta property="og:description" content="Redis是内存数据库，如果不想办法保存到磁盘里，那么一旦服务退出，保存的数据也会丢失。Redis持久化可分为RDB和AOF。RDB中是一个经压缩的二进制文件，存的是格式化后的数据，AOF保存的是执行的命令。因为AOF文件更新的频率比RDB高，所以只有Redis在AOF持久化功能处于关闭状态时，才会使用RDB模式。 RDBSAVE与BGSAVE都可让Redis生成RDB文件。SAVE会阻塞服务，直">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:updated_time" content="2019-09-26T20:16:36.489Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis持久化">
+<meta name="twitter:description" content="Redis是内存数据库，如果不想办法保存到磁盘里，那么一旦服务退出，保存的数据也会丢失。Redis持久化可分为RDB和AOF。RDB中是一个经压缩的二进制文件，存的是格式化后的数据，AOF保存的是执行的命令。因为AOF文件更新的频率比RDB高，所以只有Redis在AOF持久化功能处于关闭状态时，才会使用RDB模式。 RDBSAVE与BGSAVE都可让Redis生成RDB文件。SAVE会阻塞服务，直">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  
+
+
+
+    <title> Redis持久化 - Jiong </title>
+  </head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">Jiong</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Redis持久化
+        
+      </h1>
+
+      <time class="post-time">
+          9月 27 2019
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <p>Redis是内存数据库，如果不想办法保存到磁盘里，那么一旦服务退出，保存的数据也会丢失。Redis持久化可分为RDB和AOF。RDB中是一个经压缩的二进制文件，存的是格式化后的数据，AOF保存的是执行的命令。因为AOF文件更新的频率比RDB高，所以只有Redis在AOF持久化功能处于关闭状态时，才会使用RDB模式。</p>
+<h2 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h2><p><code>SAVE</code>与<code>BGSAVE</code>都可让Redis生成RDB文件。SAVE会阻塞服务，直到RDB文件生成为止。BGSAVE会派生出一个子进程，父进程继续执行命令。</p>
+<p>RDB文件的载入不用手工进行，当Redis服务启动时会自动检测RDB文件是否存在。Redis允许配置save选项来定时执行BGSAVE。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">; 900秒内对数据库至少执行1次修改</span><br><span class="line">; 则执行BGSAVE，可配置多个</span><br><span class="line">save 900 1</span><br></pre></td></tr></table></figure>
+
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/Redis/">Redis</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2019/20190821.html">
+        <span class="next-text nav-default">I/O多路复用: select, poll, epoll函数的介绍</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+    2019
+    <span class="footer-author">Wang Jiong.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>
