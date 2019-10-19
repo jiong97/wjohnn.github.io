@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang>
+  <head><meta name="generator" content="Hexo 3.9.0">
+    
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+  <meta name="description" content="索引可以以加速在一个或多个属性上的查询。当中记录数较少时我们可以遍历所有元组来找到有特定属性的元组，当记录数过大时就显得不现实。建立索引的字段（组合）被称为搜索码或搜索码（search key）。数据库系统最常见的是B+树索引。关系存储在文件之中，一个文件可能有多个索引文件，每个索引文件建立搜索码与记录之间的联系，搜索码的指针指向与搜索码具有相同属性值的记录。">
+
+
+
+
+  <meta name="keywords" content="数据库,">
+
+
+
+
+
+  <link rel="alternate" href="/default" title="Jiong">
+
+
+
+
+
+
+<link rel="canonical" href="http://wangjiong.me/2019/20190928.html">
+
+
+<meta name="description" content="索引可以以加速在一个或多个属性上的查询。当中记录数较少时我们可以遍历所有元组来找到有特定属性的元组，当记录数过大时就显得不现实。建立索引的字段（组合）被称为搜索码或搜索码（search key）。数据库系统最常见的是B+树索引。关系存储在文件之中，一个文件可能有多个索引文件，每个索引文件建立搜索码与记录之间的联系，搜索码的指针指向与搜索码具有相同属性值的记录。">
+<meta name="keywords" content="数据库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库索引">
+<meta property="og:url" content="http://wangjiong.me/2019/20190928.html">
+<meta property="og:site_name" content="Jiong">
+<meta property="og:description" content="索引可以以加速在一个或多个属性上的查询。当中记录数较少时我们可以遍历所有元组来找到有特定属性的元组，当记录数过大时就显得不现实。建立索引的字段（组合）被称为搜索码或搜索码（search key）。数据库系统最常见的是B+树索引。关系存储在文件之中，一个文件可能有多个索引文件，每个索引文件建立搜索码与记录之间的联系，搜索码的指针指向与搜索码具有相同属性值的记录。">
+<meta property="og:locale" content="zh-cn">
+<meta property="og:image" content="http://wangjiong.me/img/db/dense_index2.png">
+<meta property="og:image" content="http://wangjiong.me/img/db/sparse_index.png">
+<meta property="og:image" content="http://wangjiong.me/img/db/block_sparse_index.png">
+<meta property="og:image" content="http://wangjiong.me/img/db/multilevel_index.png">
+<meta property="og:image" content="http://wangjiong.me/img/db/secondary_index.png">
+<meta property="og:image" content="http://wangjiong.me/img/db/typical_node.png">
+<meta property="og:image" content="http://wangjiong.me/img/db/typical_leaf_node.png">
+<meta property="og:image" content="http://wangjiong.me/img/db/BPlustree.png">
+<meta property="og:image" content="http://wangjiong.me/img/db/node.png">
+<meta property="og:updated_time" content="2019-10-19T06:51:03.294Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据库索引">
+<meta name="twitter:description" content="索引可以以加速在一个或多个属性上的查询。当中记录数较少时我们可以遍历所有元组来找到有特定属性的元组，当记录数过大时就显得不现实。建立索引的字段（组合）被称为搜索码或搜索码（search key）。数据库系统最常见的是B+树索引。关系存储在文件之中，一个文件可能有多个索引文件，每个索引文件建立搜索码与记录之间的联系，搜索码的指针指向与搜索码具有相同属性值的记录。">
+<meta name="twitter:image" content="http://wangjiong.me/img/db/dense_index2.png">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?7747542312dd9ff883cfcc244f3d1384";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+    <title> 数据库索引 - Jiong </title>
+  </head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">Jiong</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          数据库索引
+        
+      </h1>
+
+      <time class="post-time">
+          9月 28 2019
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <p>索引可以以加速在一个或多个属性上的查询。当中记录数较少时我们可以遍历所有元组来找到有特定属性的元组，当记录数过大时就显得不现实。建立索引的字段（组合）被称为搜索码（search key）。数据库系统最常见的是B+树索引。关系存储在文件之中，一个文件可能有多个索引文件，每个索引文件建立搜索码与记录之间的联系，搜索码的指针指向与搜索码具有相同属性值的记录。</p>
+<h2 id="顺序索引"><a href="#顺序索引" class="headerlink" title="顺序索引"></a>顺序索引</h2><p>索引文件中的记录自身可以按照某种排序顺序存储，如果包含记录的文件按照某个搜索码指定的顺序排序，那么该索引被称为聚集索引。聚集索引也被称为主键索引，但实际上它可以建立在任意的属性上，通常情况下，聚集索引的搜索码是主码。搜索码指定的顺序与文件中记录顺序不同索引称为非聚集索引或辅助索引。</p>
+<h3 id="稠密索引（dense-index）"><a href="#稠密索引（dense-index）" class="headerlink" title="稠密索引（dense index）"></a>稠密索引（dense index）</h3><p>索引记录由一个搜索码和具有该搜索码的一个或多个记录的指针构成，指向记录的指针包括磁盘块号和块内偏移。稠密索引中每个搜索码都有一个索引记录，索引记录包括指向具有具有该搜索码的第一个数据记录的指针。由于该索引是聚集索引，所以记录根据相同搜索码排序。下图的索引并非建立在主键之上！而是建立在一个可重复搜索码上，所以一个索引对应多条记录，并且每个搜索码都建立了索引。</p>
+<p><img src="/img/db/dense_index2.png" alt="稠密索引"></p>
+<h3 id="稀疏索引（sparse-index）"><a href="#稀疏索引（sparse-index）" class="headerlink" title="稀疏索引（sparse index）"></a>稀疏索引（sparse index）</h3><p>只为某些搜索键建立索引（也可理解为对每个数据块建立索引，指向该块的第一条记录），它比稠密索引节省了更多的存储空间，但是查找指定键是需要更多的时间。每个索引记录同样包含指向该搜索码值的第一个数据记录的指针。为了定位一条记录，要找到最大搜索码小于或等于所找的搜索码值的记录，然后从该记录沿着文件往下查找。只有记录是按搜索码进行排序是，才能使用稀疏索引。</p>
+<p><img src="/img/db/sparse_index.png" alt="稀疏索引"></p>
+<p>下图为以块为索引的文件：</p>
+<p><img src="/img/db/block_sparse_index.png" alt="稀疏索引"></p>
+<h2 id="多级索引"><a href="#多级索引" class="headerlink" title="多级索引"></a>多级索引</h2><p>索引可能会随着记录的增加而增大，如果索引足够小到存放在内存之中，搜索一个索引所用的时间就会很小。但是，如果索引过大必须存放在磁盘之中，那搜索一次索引就必须多次读取磁盘块。为了定位一条记录，多级索引在外层索引首先使用二分查找，找到最大搜索码小于或等于指定的搜索码的记录，指针指向内层索引块，接着继续扫描，直到找到指向记录的指针。多级索引可以减少IO操作。各级索引可以对应一个物理存储单元，如磁道、柱面、磁盘等。字典是一个典型的多级索引的例子。</p>
+<p><img src="/img/db/multilevel_index.png" alt="多级索引"></p>
+<h2 id="辅助索引（secondary-index）"><a href="#辅助索引（secondary-index）" class="headerlink" title="辅助索引（secondary index）"></a>辅助索引（secondary index）</h2><p>辅助索引只存储部分搜索码，并且记录是无序存储，所以辅助索引一定是稠密索引，辅助索引不影响记录存储的位置（即它不会按照搜索码进行排序）。顺序文件的稀疏索引只存储部分搜索码，因为文件组织方式是有序的。如果辅助索引的搜索码不是候选码（唯一表示一条元组），仅仅指向有指向第一条记录的指针是不够的，具有相同搜索码的记录可能分布在磁盘的任何地方，因此辅助索引必须包含指向每一记录的指针（指向一个桶）。</p>
+<p><img src="/img/db/secondary_index.png" alt="辅助索引"></p>
+<p>聚集索引的搜索码如果不是候选键，索引只需指向具有该特定搜索码的第一个记录就足够了，因为其它的记录可以通过对文件进行顺序扫描获得。</p>
+<h2 id="B-树索引"><a href="#B-树索引" class="headerlink" title="B+树索引"></a>B+树索引</h2><p>商用数据库使用的是一种更加通用的结构，这一数据结构称为B树，而最常使用的是它的变种B+树。B+树是一个平衡树，从根节点到叶子节点的距离都一样。下图表示了一个典型节点：</p>
+<p><img src="/img/db/typical_node.png" alt="典型节点"></p>
+<p>n是一个通过计算得到的最优值。它最多包含n-1个搜索码K1、K2…、Kn-1，以及n个节点P1、P2…Pn，搜索码会按顺序存放，因此如果i &lt; j，那么Ki &lt; Kj。在叶子节点中，<code>Pi</code>指向具有相同搜索码值<code>Ki</code>的一个记录或一个指针桶（搜索码不是候选码时）。下图是一个典型叶子节点的实例。</p>
+<p><img src="/img/db/typical_leaf_node.png" alt="典型的叶子节点"></p>
+<p>要是B+树索引成为稠密索引，各个搜索码都必须出现某个叶子节点中。各个叶子节点之间所含搜索码大小都有一个线性顺序，所以指针<code>Pn</code>指向下一个叶子节点，这样就将叶子节点按搜索码的顺序串联在一起。这种排序允许对文件进行范围查询。B+树的非叶子节点，即内部节点更像一个多级索引。下图为一个B+树的例子。</p>
+<p><img src="/img/db/BPlustree.png" alt="B树"></p>
+<p>内部节点可以表述为：</p>
+<p><img src="/img/db/node.png" alt="内部节点"></p>
+<p>可以很明显地看出，它非常像二叉树。考虑一个包含m个指针的节点。对 <strong><em>i = 1, 2, …, m - 1</em></strong> ，指针<code>Pi</code>指向一颗子树，该子树包含的搜索码小于<code>Ki</code>且大于等于<code>Ki-i</code>，指针<code>Pm</code>指向的子树中所含搜索码大于等于<code>Km-1</code>的部分，而<code>P1</code>指向的子树中所含的搜索码小于<code>K1</code>。</p>
+<h2 id="散列索引（Hashing）"><a href="#散列索引（Hashing）" class="headerlink" title="散列索引（Hashing）"></a>散列索引（Hashing）</h2><p>形式化地说，K表示所有搜索码的集合，B表示所有桶地址的集合，一个桶能够存储多条记录，就是一个或大于一个的磁盘块。散列函数 <em>h</em> 就是一个 <em>K</em> 到 <em>B</em> 的函数。为了插入一条搜索码为k的记录，计算 <strong><em>h(k)</em></strong> ，找出相应桶的地址。不同搜索码可能会对应相同的桶地址。</p>
+<h2 id="复合索引"><a href="#复合索引" class="headerlink" title="复合索引"></a>复合索引</h2><p>到现在为止，我们都假设索引是建立在一个属性上的，单对某些类型的查询来说，存在多个索引，或者使用建立在多个属性上的索引。假设以下SQL语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">load</span> <span class="keyword">FROM</span> <span class="keyword">account</span></span><br><span class="line"><span class="keyword">WHERE</span> branch=<span class="string">'Perryridge'</span> <span class="keyword">AND</span> balance=<span class="number">1000</span></span><br></pre></td></tr></table></figure>
+
+<p>处理这个查询有三种策略：</p>
+<ol>
+<li><p>利用branch上的索引找出属于“Perryridge”的记录，检查每条记录是否满足balance=1000</p>
+</li>
+<li><p>和1相反</p>
+</li>
+<li><p>使用branch的索引找到记录为branch=Perryridge的记录指针集，利用balance索引找到balance=1000的记录指针集，再求这两个指针集的交</p>
+</li>
+</ol>
+<p>另一个可选策略是在搜索码(branch, balance)上建立索引，也会是说这个索引由多个属性构成，包含不止一个属性的搜索码被称为复合索引。形如<strong><em>(a1, a2, …, an)</em></strong>，索引属性为<strong>A1, A2, …, A3</strong>，搜索码的顺序是字典顺序，例如搜索码中有两个属性的情况下，<em>a1 &lt; b1</em> 且 <em>a2 &lt; b2</em> ，那么<em>(a1, a2) &lt; (b1, b2)</em> 。这和字母顺序类似，可以认为先对第一个属性排序，然后对第二个属性排序…</p>
+<p>使用顺序的的索引（B+树）能够高效执行下面的查询，先在branch上指定一个等值查询，再在balance上指定一个范围查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">load</span> <span class="keyword">FROM</span> <span class="keyword">account</span></span><br><span class="line"><span class="keyword">WHERE</span> branch=<span class="string">'Perryridge'</span> <span class="keyword">AND</span> balance&gt;<span class="number">1000</span></span><br></pre></td></tr></table></figure>
+
+<p>查到Perryridge属性的元组后，元组一定是按balance排序的。</p>
+<p>复合索引(branch, balance)甚至可以用来只涉及一个属性的查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">load</span> <span class="keyword">FROM</span> <span class="keyword">account</span></span><br><span class="line"><span class="keyword">WHERE</span> branch=<span class="string">'Perryridge'</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="记录重定向"><a href="#记录重定向" class="headerlink" title="记录重定向"></a>记录重定向</h2><p>在一些文件组织中，可能会改变记录的位置。例如一个磁盘页被分裂，一些记录会转移到另一个磁盘页。这样，所有存储指向重定向记录的指针的辅助索引都必须更新，这种操作比较高昂。在辅助索引中，我们不存储指向记录的指针，而是存储主键索引搜索码的值。因此，记录重定向不用对辅助索引进行更新。这个搜索过程就变成了：先用辅助索引找到主键，再用主键索引找到记录。</p>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/数据库/">数据库</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2019/20190927.html">
+        <span class="next-text nav-default">Redis持久化</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+    2019
+    <span class="footer-author">Wang Jiong.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>
